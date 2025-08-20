@@ -12,6 +12,7 @@ import { ProposalCard } from './ProposalCard';
 import { EngagementChart } from './EngagementChart';
 import DocumentList from './DocumentList';
 import EnhancedCustomerList from './EnhancedCustomerList';
+import ProposalQuickStart from './ProposalQuickStart';
 
 const EnhancedDashboard = () => {
   const { user, signOut } = useAuth();
@@ -170,30 +171,36 @@ const EnhancedDashboard = () => {
       <header className="bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <FileText className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">ProposalHub</h1>
-                <p className="text-sm text-muted-foreground">Complete Business Management</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>Welcome, {user?.email}</span>
-                {userRole && (
-                  <Badge variant="secondary" className="ml-2">
-                    {userRole.role}
-                  </Badge>
-                )}
-              </div>
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-foreground">ProposalHub</h1>
+                    <p className="text-sm text-muted-foreground">Complete Business Management</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Link to="/proposals">
+                    <Button variant="outline" className="gap-2">
+                      <FileText className="h-4 w-4" />
+                      All Proposals
+                    </Button>
+                  </Link>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="h-4 w-4" />
+                    <span>Welcome, {user?.email}</span>
+                    {userRole && (
+                      <Badge variant="secondary" className="ml-2">
+                        {userRole.role}
+                      </Badge>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={signOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
           </div>
         </div>
       </header>
@@ -335,8 +342,8 @@ const EnhancedDashboard = () => {
               <EnhancedCustomerList />
             </TabsContent>
 
-            <TabsContent value="proposals">
-              <DocumentList type="proposals" />
+            <TabsContent value="proposals" className="space-y-6">
+              <ProposalQuickStart onProposalCreated={fetchDashboardData} />
             </TabsContent>
 
             <TabsContent value="estimates">

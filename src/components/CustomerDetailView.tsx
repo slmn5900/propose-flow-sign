@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import CustomerInsights from './CustomerInsights';
 import CustomerCommunication from './CustomerCommunication';
 import ContactDialog from './ContactDialog';
+import ProposalBuilder from './proposals/ProposalBuilder';
 import EnhancedCustomerForm from './forms/EnhancedCustomerForm';
 
 interface CustomerDetailViewProps {
@@ -288,10 +289,17 @@ const CustomerDetailView = ({ customer, isOpen, onClose, onCustomerUpdated }: Cu
                 <div className="grid gap-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <FileText className="h-5 w-5" />
-                        Proposals ({documents.proposals.length})
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          <FileText className="h-5 w-5" />
+                          Proposals ({documents.proposals.length})
+                        </CardTitle>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            Create Proposal
+                          </Button>
+                        </DialogTrigger>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       {documents.proposals.length > 0 ? (
@@ -309,7 +317,15 @@ const CustomerDetailView = ({ customer, isOpen, onClose, onCustomerUpdated }: Cu
                           ))}
                         </div>
                       ) : (
-                        <p className="text-muted-foreground">No proposals</p>
+                        <div className="text-center py-6">
+                          <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                          <p className="text-muted-foreground mb-4">No proposals created yet</p>
+                          <DialogTrigger asChild>
+                            <Button>
+                              Create First Proposal
+                            </Button>
+                          </DialogTrigger>
+                        </div>
                       )}
                     </CardContent>
                   </Card>
@@ -409,6 +425,20 @@ const CustomerDetailView = ({ customer, isOpen, onClose, onCustomerUpdated }: Cu
           open={contactDialog}
           onOpenChange={setContactDialog}
         />
+
+        {/* Proposal Creation Dialog */}
+        <Dialog>
+          <DialogContent className="max-w-none w-[95vw] h-[95vh] p-0">
+            <ProposalBuilder
+              customerId={customer.id}
+              onSuccess={() => {
+                fetchCustomerData();
+                toast.success('Proposal created successfully');
+              }}
+              onCancel={() => {}}
+            />
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   );

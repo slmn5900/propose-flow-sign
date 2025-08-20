@@ -12,7 +12,7 @@ import { toast } from '@/hooks/use-toast';
 import { 
   Plus, Search, Filter, Eye, Edit, Copy, Trash2, Send, 
   FileText, Clock, CheckCircle, XCircle, AlertCircle, 
-  MoreHorizontal, Calendar, DollarSign 
+  MoreHorizontal, Calendar, DollarSign, Users 
 } from 'lucide-react';
 import ProposalBuilder from './proposals/ProposalBuilder';
 import ProposalPreview from './proposals/ProposalPreview';
@@ -32,6 +32,7 @@ interface Proposal {
   updated_at: string;
   version: number | null;
   created_by: string;
+  customer_id: string | null;
 }
 
 const ProposalsList = () => {
@@ -278,19 +279,28 @@ const ProposalsList = () => {
             return (
               <Card key={proposal.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg line-clamp-2">{proposal.title}</CardTitle>
-                      <CardDescription className="mt-1">
-                        {proposal.client_name}
-                        {proposal.client_company && ` • ${proposal.client_company}`}
-                      </CardDescription>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg line-clamp-2">{proposal.title}</CardTitle>
+                        <CardDescription className="mt-1">
+                          {proposal.client_name}
+                          {proposal.client_company && ` • ${proposal.client_company}`}
+                        </CardDescription>
+                        {/* Show if linked to customer */}
+                        {proposal.customer_id && (
+                          <div className="mt-1">
+                            <Badge variant="outline" className="text-xs gap-1">
+                              <Users className="h-3 w-3" />
+                              Customer Link
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                      <Badge variant="outline" className="gap-1 ml-2">
+                        <StatusIcon className="h-3 w-3" />
+                        {statusConfig[proposal.status]?.label || proposal.status}
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="gap-1 ml-2">
-                      <StatusIcon className="h-3 w-3" />
-                      {statusConfig[proposal.status]?.label || proposal.status}
-                    </Badge>
-                  </div>
                 </CardHeader>
 
                 <CardContent className="space-y-4">

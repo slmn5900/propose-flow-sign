@@ -16,7 +16,7 @@ import { toast } from '@/hooks/use-toast';
 import { 
   Loader2, Save, Send, Eye, Copy, FileText, 
   Settings, Palette, Layout, DollarSign, Clock, 
-  Upload, Signature, Mail, Download
+  Upload, Signature, Mail, Download, Users, Search
 } from 'lucide-react';
 import ProposalCoverPage from './ProposalCoverPage';
 import ProposalSectionBuilder from './ProposalSectionBuilder';
@@ -53,6 +53,9 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
   const [activeTab, setActiveTab] = useState('details');
   const [showPreview, setShowPreview] = useState(false);
   const [showEmailSender, setShowEmailSender] = useState(false);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
 
   // Proposal content state
   const [coverPage, setCoverPage] = useState(proposal?.cover_page || {
@@ -87,6 +90,67 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
       signature_required: proposal?.signature_required || true,
     },
   });
+
+  // Fetch customers for selection
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('created_by', user.id)
+          .order('name');
+
+        if (error) throw error;
+        setCustomers(data || []);
+
+        // If editing a proposal with a customer_id, find and set the customer
+        if (proposal?.customer_id) {
+          const customer = data?.find(c => c.id === proposal.customer_id);
+          if (customer) {
+            setSelectedCustomer(customer);
+          }
+        }
+        
+        // If creating from a specific customer, pre-select them
+        if (customerId && !proposal) {
+          const customer = data?.find(c => c.id === customerId);
+          if (customer) {
+            setSelectedCustomer(customer);
+            form.setValue('client_name', customer.name);
+            form.setValue('client_email', customer.email);
+            form.setValue('client_company', customer.company || '');
+          }
+        }
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch customers",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchCustomers();
+  }, [user, proposal, customerId]);
+
+  // Handle customer selection
+  const handleCustomerSelect = (customer: any) => {
+    setSelectedCustomer(customer);
+    form.setValue('client_name', customer.name);
+    form.setValue('client_email', customer.email);
+    form.setValue('client_company', customer.company || '');
+    setCustomerSearchTerm('');
+  };
+
+  // Filter customers based on search
+  const filteredCustomers = customers.filter(customer =>
+    customer.name.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
+    customer.email.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
+    customer.company?.toLowerCase().includes(customerSearchTerm.toLowerCase())
+  );
 
   // Auto-save functionality
   useEffect(() => {
@@ -143,7 +207,7 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
         expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null,
         status: data.status,
         signature_required: data.signature_required,
-        customer_id: customerId || null,
+        customer_id: selectedCustomer?.id || customerId || null,
         cover_page: coverPage,
         sections: sections,
         pricing_table: pricingTable,
@@ -371,15 +435,89 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
                     )}
                   />
 
+                  {/* Customer Selection */}
+                  <Card className="p-4 bg-muted/5">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium">Client Information</h3>
+                        {selectedCustomer && (
+                          <Badge variant="outline" className="gap-1">
+                            <Users className="h-3 w-3" />
+                            From Customer Database
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {!selectedCustomer ? (
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Search existing customers..."
+                              value={customerSearchTerm}
+                              onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                              className="pl-9"
+                            />
+                          </div>
+                          
+                          {customerSearchTerm && filteredCustomers.length > 0 && (
+                            <div className="border rounded-lg max-h-40 overflow-y-auto">
+                              {filteredCustomers.slice(0, 5).map((customer) => (
+                                <button
+                                  key={customer.id}
+                                  type="button"
+                                  onClick={() => handleCustomerSelect(customer)}
+                                  className="w-full text-left p-3 hover:bg-muted/50 border-b last:border-b-0 transition-colors"
+                                >
+                                  <div className="font-medium">{customer.name}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {customer.email}
+                                    {customer.company && ` • ${customer.company}`}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          <p className="text-sm text-muted-foreground">
+                            Search for an existing customer or fill in the fields below manually
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
+                          <div>
+                            <div className="font-medium">{selectedCustomer.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {selectedCustomer.email}
+                              {selectedCustomer.company && ` • ${selectedCustomer.company}`}
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedCustomer(null)}
+                          >
+                            Change
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="client_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Client Name</FormLabel>
+                          <FormLabel>Client Name *</FormLabel>
                           <FormControl>
-                            <Input placeholder="John Doe" {...field} />
+                            <Input 
+                              placeholder="John Doe" 
+                              {...field}
+                              disabled={!!selectedCustomer}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -391,9 +529,14 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
                       name="client_email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Client Email</FormLabel>
+                          <FormLabel>Client Email *</FormLabel>
                           <FormControl>
-                            <Input placeholder="john@example.com" type="email" {...field} />
+                            <Input 
+                              placeholder="john@example.com" 
+                              type="email" 
+                              {...field}
+                              disabled={!!selectedCustomer}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -407,7 +550,11 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
                         <FormItem>
                           <FormLabel>Client Company</FormLabel>
                           <FormControl>
-                            <Input placeholder="Acme Corp" {...field} />
+                            <Input 
+                              placeholder="Acme Corp" 
+                              {...field}
+                              disabled={!!selectedCustomer}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
