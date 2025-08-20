@@ -8,19 +8,23 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Plus, Trash2, GripVertical, FileText, Target, 
   Clock, DollarSign, FileCheck, ChevronUp, ChevronDown,
-  Image, Video, Type, Heading1, Heading2, AlignLeft
+  Image, Video, Type, Heading1, Heading2, AlignLeft, Link, 
+  Eye, EyeOff, X
 } from 'lucide-react';
 import MediaUploader from '../MediaUploader';
 
 interface ContentBlock {
   id: string;
-  type: 'text' | 'heading' | 'subheading' | 'image' | 'video';
+  type: 'text' | 'heading' | 'subheading' | 'image' | 'video' | 'link' | 'container';
   content: string;
   metadata?: {
     level?: number; // for headings
-    url?: string; // for images/videos
+    url?: string; // for images/videos/links
     caption?: string; // for images/videos
     alignment?: 'left' | 'center' | 'right';
+    link_text?: string; // for links
+    container_type?: 'box' | 'card' | 'highlight'; // for containers
+    children?: ContentBlock[]; // for containers
   };
 }
 interface Section {
@@ -332,6 +336,196 @@ const ProposalSectionBuilder = ({ sections, onSectionsChange }: ProposalSectionB
                         />
                       </div>
 
+                      {/* Content Blocks - Enhanced rich content editor */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium">Rich Content</label>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addContentBlock(section.id, 'text')}
+                              className="gap-1"
+                            >
+                              <Type className="h-3 w-3" />
+                              Text
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addContentBlock(section.id, 'heading')}
+                              className="gap-1"
+                            >
+                              <Heading1 className="h-3 w-3" />
+                              Heading
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowMediaUploader({ sectionId: section.id, type: 'image' })}
+                              className="gap-1"
+                            >
+                              <Image className="h-3 w-3" />
+                              Image
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addContentBlock(section.id, 'link')}
+                              className="gap-1"
+                            >
+                              <Link className="h-3 w-3" />
+                              Link
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addContentBlock(section.id, 'container')}
+                              className="gap-1"
+                            >
+                              <Plus className="h-3 w-3" />
+                              Container
+                            </Button>
+                          </div>
+                        </div>
+
+                        {section.content_blocks && section.content_blocks.length > 0 && (
+                          <div className="space-y-3 border rounded-lg p-3 bg-muted/5">
+                            {section.content_blocks.map((block) => (
+                              <Card key={block.id} className="p-3">
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <Badge variant="outline">{block.type}</Badge>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => removeContentBlock(section.id, block.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+
+                                  {block.type === 'text' && (
+                                    <Textarea
+                                      placeholder="Enter your text content..."
+                                      value={block.content}
+                                      onChange={(e) => updateContentBlock(section.id, block.id, { content: e.target.value })}
+                                      rows={3}
+                                    />
+                                  )}
+
+                                  {(block.type === 'heading' || block.type === 'subheading') && (
+                                    <div className="space-y-2">
+                                      <Input
+                                        placeholder="Heading text"
+                                        value={block.content}
+                                        onChange={(e) => updateContentBlock(section.id, block.id, { content: e.target.value })}
+                                      />
+                                      <Select
+                                        value={block.metadata?.level?.toString() || '1'}
+                                        onValueChange={(value) => updateContentBlock(section.id, block.id, {
+                                          metadata: { ...block.metadata, level: parseInt(value) }
+                                        })}
+                                      >
+                                        <SelectTrigger className="w-32">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="1">H1</SelectItem>
+                                          <SelectItem value="2">H2</SelectItem>
+                                          <SelectItem value="3">H3</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  )}
+
+                                  {block.type === 'image' && (
+                                    <div className="space-y-2">
+                                      {block.metadata?.url ? (
+                                        <div className="space-y-2">
+                                          <img 
+                                            src={block.metadata.url} 
+                                            alt={block.content} 
+                                            className="max-w-xs rounded border"
+                                          />
+                                          <Input
+                                            placeholder="Image caption"
+                                            value={block.metadata?.caption || ''}
+                                            onChange={(e) => updateContentBlock(section.id, block.id, {
+                                              metadata: { ...block.metadata, caption: e.target.value }
+                                            })}
+                                          />
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => updateContentBlock(section.id, block.id, {
+                                              metadata: { ...block.metadata, url: undefined }
+                                            })}
+                                          >
+                                            Remove Image
+                                          </Button>
+                                        </div>
+                                      ) : (
+                                        <Button
+                                          variant="outline"
+                                          onClick={() => setShowMediaUploader({ sectionId: section.id, type: 'image' })}
+                                        >
+                                          Upload Image
+                                        </Button>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {block.type === 'link' && (
+                                    <div className="space-y-2">
+                                      <Input
+                                        placeholder="Link text"
+                                        value={block.metadata?.link_text || ''}
+                                        onChange={(e) => updateContentBlock(section.id, block.id, {
+                                          metadata: { ...block.metadata, link_text: e.target.value }
+                                        })}
+                                      />
+                                      <Input
+                                        placeholder="URL (https://...)"
+                                        value={block.metadata?.url || ''}
+                                        onChange={(e) => updateContentBlock(section.id, block.id, {
+                                          metadata: { ...block.metadata, url: e.target.value }
+                                        })}
+                                      />
+                                    </div>
+                                  )}
+
+                                  {block.type === 'container' && (
+                                    <div className="space-y-2">
+                                      <Input
+                                        placeholder="Container title"
+                                        value={block.content}
+                                        onChange={(e) => updateContentBlock(section.id, block.id, { content: e.target.value })}
+                                      />
+                                      <Select
+                                        value={block.metadata?.container_type || 'box'}
+                                         onValueChange={(value) => updateContentBlock(section.id, block.id, {
+                                           metadata: { ...block.metadata, container_type: value as 'box' | 'card' | 'highlight' }
+                                         })}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="box">Box</SelectItem>
+                                          <SelectItem value="card">Card</SelectItem>
+                                          <SelectItem value="highlight">Highlight</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  )}
+                                </div>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       {/* Items for deliverables and timeline sections */}
                       {(section.type === 'deliverables' || section.type === 'timeline') && (
                         <div className="space-y-3">
@@ -403,6 +597,29 @@ const ProposalSectionBuilder = ({ sections, onSectionsChange }: ProposalSectionB
           </div>
         </CardContent>
       </Card>
+
+      {/* Media Uploader Modal */}
+      {showMediaUploader && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Upload {showMediaUploader.type}</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMediaUploader(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <MediaUploader
+              bucketName={showMediaUploader.type === 'image' ? 'proposal-images' : 'proposal-videos'}
+              acceptedTypes={showMediaUploader.type === 'image' ? 'image/*' : 'video/*'}
+              onUploadSuccess={handleMediaUpload}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

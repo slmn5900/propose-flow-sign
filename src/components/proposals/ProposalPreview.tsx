@@ -21,7 +21,10 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
   const calculateItemTotal = (item: any) => {
     const subtotal = item.quantity * item.unit_price;
     const discount = (item.discount || 0) / 100;
-    return subtotal * (1 - discount);
+    const afterDiscount = subtotal * (1 - discount);
+    const tax = afterDiscount * ((item.tax_rate || 0) / 100);
+    const gst = afterDiscount * ((item.gst_rate || 0) / 100);
+    return afterDiscount + tax + gst;
   };
 
   const calculateTotal = () => {
@@ -41,7 +44,8 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+        <div className="flex-1 overflow-y-auto p-6">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>Proposal Preview</DialogTitle>
@@ -218,7 +222,8 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                       <tr className="bg-muted/50">
                         <th className="border border-border p-3 text-left">Item</th>
                         <th className="border border-border p-3 text-center">Qty</th>
-                        <th className="border border-border p-3 text-right">Unit Price</th>
+                        <th className="border border-border p-3 text-right">Rate</th>
+                        <th className="border border-border p-3 text-center">HSN</th>
                         <th className="border border-border p-3 text-right">Total</th>
                       </tr>
                     </thead>
@@ -236,6 +241,12 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                           <td className="border border-border p-3 text-center">{item.quantity}</td>
                           <td className="border border-border p-3 text-right">
                             {formatCurrency(item.unit_price)}
+                            {item.unit_type && (
+                              <div className="text-xs text-muted-foreground">/{item.unit_type}</div>
+                            )}
+                          </td>
+                          <td className="border border-border p-3 text-center text-xs">
+                            {item.hsn_code || '-'}
                           </td>
                           <td className="border border-border p-3 text-right font-medium">
                             {formatCurrency(calculateItemTotal(item))}
@@ -245,7 +256,7 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                     </tbody>
                     <tfoot>
                       <tr className="bg-muted/50">
-                        <td colSpan={3} className="border border-border p-3 text-right font-semibold">
+                        <td colSpan={4} className="border border-border p-3 text-right font-semibold">
                           Total Amount:
                         </td>
                         <td className="border border-border p-3 text-right font-bold text-primary">
@@ -293,6 +304,7 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                 </div>
               </div>
             )}
+          </div>
           </div>
         </div>
       </DialogContent>

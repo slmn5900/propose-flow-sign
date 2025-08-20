@@ -15,8 +15,11 @@ interface PricingItem {
   description: string;
   quantity: number;
   unit_price: number;
+  unit_type: 'hour' | 'day' | 'week' | 'month' | 'year' | 'piece' | 'project';
   discount?: number;
   tax_rate?: number;
+  gst_rate?: number;
+  hsn_code?: string;
 }
 
 interface PricingVariant {
@@ -57,6 +60,7 @@ const ProposalPricingTable = ({ pricingTable, onPricingTableChange, currency }: 
       description: '',
       quantity: 1,
       unit_price: 0,
+      unit_type: 'hour',
     };
 
     updatePricingTable({
@@ -101,12 +105,49 @@ const ProposalPricingTable = ({ pricingTable, onPricingTableChange, currency }: 
     updatePricingTable({ variants: updatedVariants });
   };
 
+  const addItemToVariant = (variantId: string) => {
+    const newItem: PricingItem = {
+      id: `item_${Date.now()}`,
+      name: '',
+      description: '',
+      quantity: 1,
+      unit_price: 0,
+      unit_type: 'hour',
+    };
+
+    const variant = pricingTable.variants.find(v => v.id === variantId);
+    if (variant) {
+      updateVariant(variantId, {
+        items: [...variant.items, newItem],
+      });
+    }
+  };
+
+  const updateVariantItem = (variantId: string, itemId: string, updates: Partial<PricingItem>) => {
+    const variant = pricingTable.variants.find(v => v.id === variantId);
+    if (variant) {
+      const updatedItems = variant.items.map(item =>
+        item.id === itemId ? { ...item, ...updates } : item
+      );
+      updateVariant(variantId, { items: updatedItems });
+    }
+  };
+
+  const removeVariantItem = (variantId: string, itemId: string) => {
+    const variant = pricingTable.variants.find(v => v.id === variantId);
+    if (variant) {
+      const updatedItems = variant.items.filter(item => item.id !== itemId);
+      updateVariant(variantId, { items: updatedItems });
+    }
+  };
+
   const calculateItemTotal = (item: PricingItem) => {
     const subtotal = item.quantity * item.unit_price;
     const discount = (item.discount || 0) / 100;
     const afterDiscount = subtotal * (1 - discount);
     const tax = afterDiscount * ((item.tax_rate || pricingTable.tax_rate || 0) / 100);
-    return afterDiscount + tax;
+    const gst = afterDiscount * ((item.gst_rate || 0) / 100);
+    return afterDiscount + tax + gst;
   };
 
   const calculateTotal = () => {
@@ -192,7 +233,7 @@ const ProposalPricingTable = ({ pricingTable, onPricingTableChange, currency }: 
                           rows={2}
                         />
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                           <div>
                             <label className="text-sm font-medium">Quantity</label>
                             <Input
@@ -212,6 +253,26 @@ const ProposalPricingTable = ({ pricingTable, onPricingTableChange, currency }: 
                             />
                           </div>
                           <div>
+                            <label className="text-sm font-medium">Unit Type</label>
+                            <Select
+                              value={item.unit_type}
+                              onValueChange={(value) => updateItem(item.id, { unit_type: value as PricingItem['unit_type'] })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="hour">Hour</SelectItem>
+                                <SelectItem value="day">Day</SelectItem>
+                                <SelectItem value="week">Week</SelectItem>
+                                <SelectItem value="month">Month</SelectItem>
+                                <SelectItem value="year">Year</SelectItem>
+                                <SelectItem value="piece">Piece</SelectItem>
+                                <SelectItem value="project">Project</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
                             <label className="text-sm font-medium">Discount (%)</label>
                             <Input
                               type="number"
@@ -222,10 +283,43 @@ const ProposalPricingTable = ({ pricingTable, onPricingTableChange, currency }: 
                             />
                           </div>
                           <div>
+                            <label className="text-sm font-medium">GST (%)</label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                              value={item.gst_rate || ''}
+                              onChange={(e) => updateItem(item.id, { gst_rate: parseFloat(e.target.value) || 0 })}
+                            />
+                          </div>
+                          <div>
                             <label className="text-sm font-medium">Total</label>
                             <div className="h-10 flex items-center px-3 border border-input bg-muted rounded-md">
                               {formatCurrency(calculateItemTotal(item))}
                             </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium">HSN Code</label>
+                            <Input
+                              placeholder="HSN/SAC Code"
+                              value={item.hsn_code || ''}
+                              onChange={(e) => updateItem(item.id, { hsn_code: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Tax Rate (%)</label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                              value={item.tax_rate || ''}
+                              onChange={(e) => updateItem(item.id, { tax_rate: parseFloat(e.target.value) || 0 })}
+                            />
                           </div>
                         </div>
                       </div>
@@ -324,6 +418,57 @@ const ProposalPricingTable = ({ pricingTable, onPricingTableChange, currency }: 
                           <span className="text-2xl font-bold">
                             {formatCurrency(calculateVariantTotal(variant))}
                           </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-medium">Items</label>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addItemToVariant(variant.id)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          
+                          <div className="space-y-2 max-h-40 overflow-y-auto">
+                            {variant.items.map((item) => (
+                              <div key={item.id} className="border rounded p-2 text-sm">
+                                <div className="flex items-center justify-between">
+                                  <Input
+                                    placeholder="Item name"
+                                    value={item.name}
+                                    onChange={(e) => updateVariantItem(variant.id, item.id, { name: e.target.value })}
+                                    className="text-xs h-6"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeVariantItem(variant.id, item.id)}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-1 mt-1">
+                                  <Input
+                                    type="number"
+                                    placeholder="Qty"
+                                    value={item.quantity}
+                                    onChange={(e) => updateVariantItem(variant.id, item.id, { quantity: parseInt(e.target.value) || 1 })}
+                                    className="text-xs h-6"
+                                  />
+                                  <Input
+                                    type="number"
+                                    placeholder="Price"
+                                    value={item.unit_price}
+                                    onChange={(e) => updateVariantItem(variant.id, item.id, { unit_price: parseFloat(e.target.value) || 0 })}
+                                    className="text-xs h-6"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
 
                         <div className="space-y-2">
