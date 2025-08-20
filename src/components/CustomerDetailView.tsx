@@ -403,12 +403,12 @@ const CustomerDetailView = ({ customer, isOpen, onClose, onCustomerUpdated }: Cu
           </div>
         )}
 
-        {/* ContactDialog will be fixed in next iteration */}
-        {/* <ContactDialog
-          open={contactDialog}
+        {/* Contact Dialog */}
+        <ContactDialog
           customer={customer}
-          onSuccess={handleContactUpdate}
-        /> */}
+          open={contactDialog}
+          onOpenChange={setContactDialog}
+        />
       </DialogContent>
     </Dialog>
   );

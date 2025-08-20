@@ -15,6 +15,8 @@ import { toast } from 'sonner';
 import EnhancedCustomerForm from './forms/EnhancedCustomerForm';
 import ContactDialog from './ContactDialog';
 import QuickCustomerAdd from './QuickCustomerAdd';
+import ImportExportTools from './ImportExportTools';
+import CustomerDetailView from './CustomerDetailView';
 
 const EnhancedCustomerList = () => {
   const { user } = useAuth();
@@ -28,6 +30,8 @@ const EnhancedCustomerList = () => {
   const [industryFilter, setIndustryFilter] = useState('all');
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [showContacts, setShowContacts] = useState(false);
+  const [showDetailView, setShowDetailView] = useState(false);
+  const [showImportExport, setShowImportExport] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -111,6 +115,12 @@ const EnhancedCustomerList = () => {
           </div>
           {hasPermission('create_customer') && (
             <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowImportExport(true)}
+              >
+                Import/Export
+              </Button>
               <QuickCustomerAdd 
                 onSuccess={fetchCustomers}
                 trigger={
@@ -142,7 +152,7 @@ const EnhancedCustomerList = () => {
                     }}
                   />
                 </DialogContent>
-              </Dialog>
+                </Dialog>
             </div>
           )}
         </div>
@@ -210,7 +220,7 @@ const EnhancedCustomerList = () => {
                 <TableHead>Website</TableHead>
                 <TableHead>Tags</TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -276,35 +286,47 @@ const EnhancedCustomerList = () => {
                     {new Date(customer.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {hasPermission('edit_customer') && (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setEditingCustomer(customer);
-                              setShowForm(true);
-                            }}
-                          >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                        )}
-                        {hasPermission('delete_customer') && (
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(customer.id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedCustomer(customer);
+                          setShowDetailView(true);
+                        }}
+                      >
+                        View Details
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {hasPermission('edit_customer') && (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setEditingCustomer(customer);
+                                setShowForm(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                          )}
+                          {hasPermission('delete_customer') && (
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(customer.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -318,6 +340,24 @@ const EnhancedCustomerList = () => {
           open={showContacts}
           onOpenChange={setShowContacts}
         />
+
+        {/* Customer Detail View */}
+        <CustomerDetailView
+          customer={selectedCustomer}
+          isOpen={showDetailView}
+          onClose={() => setShowDetailView(false)}
+          onCustomerUpdated={fetchCustomers}
+        />
+
+        {/* Import/Export Tools */}
+        <Dialog open={showImportExport} onOpenChange={setShowImportExport}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Import & Export Tools</DialogTitle>
+            </DialogHeader>
+            <ImportExportTools onImportComplete={fetchCustomers} />
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
