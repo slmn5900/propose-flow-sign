@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
@@ -204,77 +205,80 @@ const ProposalsList = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Proposals</h1>
-          <p className="text-muted-foreground mt-1">
-            Create, manage, and track your business proposals
-          </p>
-        </div>
-        <Button onClick={handleCreateNew} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Proposal
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search proposals..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="sent">Sent</SelectItem>
-                <SelectItem value="viewed">Viewed</SelectItem>
-                <SelectItem value="signed">Signed</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Proposals Grid */}
-      {filteredProposals.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">
-              {proposals.length === 0 ? 'No proposals yet' : 'No matching proposals'}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              {proposals.length === 0 
-                ? 'Create your first proposal to get started with professional client presentations.'
-                : 'Try adjusting your search or filter criteria.'
-              }
+    <div className="h-screen flex flex-col">
+      <div className="container mx-auto p-6 max-w-7xl flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 flex-shrink-0">
+          <div>
+            <h1 className="text-3xl font-bold">Proposals</h1>
+            <p className="text-muted-foreground mt-1">
+              Create, manage, and track your business proposals
             </p>
-            {proposals.length === 0 && (
-              <Button onClick={handleCreateNew} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Create First Proposal
-              </Button>
-            )}
+          </div>
+          <Button onClick={handleCreateNew} className="gap-2">
+            <Plus className="h-4 w-4" />
+            New Proposal
+          </Button>
+        </div>
+
+        {/* Filters */}
+        <Card className="mb-6 flex-shrink-0">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search proposals..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="viewed">Viewed</SelectItem>
+                  <SelectItem value="signed">Signed</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProposals.map((proposal) => {
+
+        {/* Proposals Grid with ScrollArea */}
+        <div className="flex-1 min-h-0">
+          <ScrollArea className="h-full">
+            {filteredProposals.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">
+                    {proposals.length === 0 ? 'No proposals yet' : 'No matching proposals'}
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {proposals.length === 0 
+                      ? 'Create your first proposal to get started with professional client presentations.'
+                      : 'Try adjusting your search or filter criteria.'
+                    }
+                  </p>
+                  {proposals.length === 0 && (
+                    <Button onClick={handleCreateNew} className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Create First Proposal
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
+                {filteredProposals.map((proposal) => {
             const StatusIcon = statusConfig[proposal.status]?.icon || FileText;
             
             return (
@@ -407,19 +411,24 @@ const ProposalsList = () => {
                 </CardContent>
               </Card>
             );
-          })}
+                })}
+              </div>
+            )}
+          </ScrollArea>
         </div>
-      )}
+      </div>
 
       {/* Proposal Builder Modal */}
       {showBuilder && (
         <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
           <DialogContent className="max-w-none w-[95vw] h-[95vh] p-0">
-            <ProposalBuilder
-              proposal={selectedProposal}
-              onSuccess={handleBuilderSuccess}
-              onCancel={() => setShowBuilder(false)}
-            />
+            <ScrollArea className="h-full">
+              <ProposalBuilder
+                proposal={selectedProposal}
+                onSuccess={handleBuilderSuccess}
+                onCancel={() => setShowBuilder(false)}
+              />
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       )}

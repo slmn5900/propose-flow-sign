@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/hooks/use-toast';
 import { 
   Loader2, Save, Send, Eye, Copy, FileText, 
@@ -295,82 +296,90 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
   }, [pricingTable]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">
-            {proposal ? 'Edit Proposal' : 'Create New Proposal'}
-          </h1>
-          <p className="text-muted-foreground">
-            {proposal ? 'Update your proposal details' : 'Build a professional proposal'}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {saving && (
-            <Badge variant="outline" className="animate-pulse">
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              Auto-saving...
-            </Badge>
-          )}
-          <Button
-            variant="outline"
-            onClick={() => setShowPreview(true)}
-            className="gap-2"
-          >
-            <Eye className="h-4 w-4" />
-            Preview
-          </Button>
-          {proposal && (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleDuplicate}
-                disabled={loading}
-                className="gap-2"
-              >
-                <Copy className="h-4 w-4" />
-                Duplicate
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowEmailSender(true)}
-                className="gap-2"
-              >
-                <Send className="h-4 w-4" />
-                Send
-              </Button>
-            </>
-          )}
+    <div className="h-full flex flex-col">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 p-6 border-b">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">
+              {proposal ? 'Edit Proposal' : 'Create New Proposal'}
+            </h1>
+            <p className="text-muted-foreground">
+              {proposal ? 'Update your proposal details' : 'Build a professional proposal'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {saving && (
+              <Badge variant="outline" className="animate-pulse">
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                Auto-saving...
+              </Badge>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => setShowPreview(true)}
+              className="gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              Preview
+            </Button>
+            {proposal && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleDuplicate}
+                  disabled={loading}
+                  className="gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  Duplicate
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowEmailSender(true)}
+                  className="gap-2"
+                >
+                  <Send className="h-4 w-4" />
+                  Send
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="details" className="gap-2">
-            <Settings className="h-4 w-4" />
-            Details
-          </TabsTrigger>
-          <TabsTrigger value="cover" className="gap-2">
-            <Layout className="h-4 w-4" />
-            Cover Page
-          </TabsTrigger>
-          <TabsTrigger value="sections" className="gap-2">
-            <FileText className="h-4 w-4" />
-            Sections
-          </TabsTrigger>
-          <TabsTrigger value="pricing" className="gap-2">
-            <DollarSign className="h-4 w-4" />
-            Pricing
-          </TabsTrigger>
-          <TabsTrigger value="finalize" className="gap-2">
-            <Signature className="h-4 w-4" />
-            Finalize
-          </TabsTrigger>
-        </TabsList>
+      {/* Tabs - Fixed */}
+      <div className="flex-shrink-0 p-6 pb-0">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="details" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="cover" className="gap-2">
+              <Layout className="h-4 w-4" />
+              Cover Page
+            </TabsTrigger>
+            <TabsTrigger value="sections" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Sections
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="gap-2">
+              <DollarSign className="h-4 w-4" />
+              Pricing
+            </TabsTrigger>
+            <TabsTrigger value="finalize" className="gap-2">
+              <Signature className="h-4 w-4" />
+              Finalize
+            </TabsTrigger>
+          </TabsList>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Scrollable Content Area */}
+          <div className="flex-1 min-h-0">
+            <ScrollArea className="h-[calc(100vh-300px)]">
+              <div className="p-6">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             
             {/* Details Tab */}
             <TabsContent value="details" className="space-y-6">
@@ -715,9 +724,13 @@ const ProposalBuilder = ({ proposal, onSuccess, onCancel, customerId }: Proposal
                 </Button>
               </div>
             </div>
-          </form>
-        </Form>
-      </Tabs>
+                  </form>
+                </Form>
+              </div>
+            </ScrollArea>
+          </div>
+        </Tabs>
+      </div>
 
       {/* Preview Modal */}
       {showPreview && (

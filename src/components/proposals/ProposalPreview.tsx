@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Download, Mail, X } from 'lucide-react';
 
 interface ProposalPreviewProps {
@@ -69,9 +70,9 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-6 min-h-0">
-
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <ScrollArea className="flex-1">
+          <div className="p-6">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
           {/* Cover Page - Always show with fallbacks */}
           <div className="p-8 border-b bg-gradient-to-br from-primary/5 to-secondary/5">
             <div className="text-center space-y-6">
@@ -310,9 +311,10 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                 </div>
               </div>
             )}
+            </div>
           </div>
         </div>
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
