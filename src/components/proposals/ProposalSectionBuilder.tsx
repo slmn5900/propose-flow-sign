@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Plus, Trash2, GripVertical, FileText, Target, 
   Clock, DollarSign, FileCheck, ChevronUp, ChevronDown,
@@ -600,25 +601,21 @@ const ProposalSectionBuilder = ({ sections, onSectionsChange }: ProposalSectionB
 
       {/* Media Uploader Modal */}
       {showMediaUploader && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Upload {showMediaUploader.type}</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowMediaUploader(null)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+        <Dialog open={true} onOpenChange={() => setShowMediaUploader(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Upload {showMediaUploader.type}</DialogTitle>
+              <DialogDescription>
+                Select and upload {showMediaUploader.type} files for your proposal section.
+              </DialogDescription>
+            </DialogHeader>
             <MediaUploader
               bucketName={showMediaUploader.type === 'image' ? 'proposal-images' : 'proposal-videos'}
               acceptedTypes={showMediaUploader.type === 'image' ? 'image/*' : 'video/*'}
               onUploadSuccess={handleMediaUpload}
             />
-          </div>
-        </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

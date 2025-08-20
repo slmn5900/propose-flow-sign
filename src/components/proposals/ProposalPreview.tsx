@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -45,10 +45,14 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
-        <div className="flex-1 overflow-y-auto p-6">
-        <DialogHeader>
+        <DialogHeader className="sticky top-0 bg-background border-b p-6 z-10">
           <div className="flex items-center justify-between">
-            <DialogTitle>Proposal Preview</DialogTitle>
+            <div>
+              <DialogTitle>Proposal Preview</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground mt-1">
+                Preview your proposal before sending to the client
+              </DialogDescription>
+            </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
                 <Download className="h-4 w-4 mr-2" />
@@ -64,6 +68,8 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
             </div>
           </div>
         </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto p-6">
 
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
           {/* Cover Page - Always show with fallbacks */}
@@ -305,7 +311,7 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
               </div>
             )}
           </div>
-          </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
