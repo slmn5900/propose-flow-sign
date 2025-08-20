@@ -62,59 +62,55 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
         </DialogHeader>
 
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          {/* Cover Page */}
-          {proposal.cover_page && (
-            <div className="p-8 border-b bg-gradient-to-br from-primary/5 to-secondary/5">
-              <div className="text-center space-y-6">
-                {proposal.cover_page.logo_url && (
-                  <img 
-                    src={proposal.cover_page.logo_url} 
-                    alt="Company Logo" 
-                    className="h-16 mx-auto object-contain"
-                  />
-                )}
+          {/* Cover Page - Always show with fallbacks */}
+          <div className="p-8 border-b bg-gradient-to-br from-primary/5 to-secondary/5">
+            <div className="text-center space-y-6">
+              {proposal.cover_page?.logo_url && (
+                <img 
+                  src={proposal.cover_page.logo_url} 
+                  alt="Company Logo" 
+                  className="h-16 mx-auto object-contain"
+                />
+              )}
+              
+              {proposal.cover_page?.company_name && (
+                <h1 className="text-3xl font-bold text-foreground">
+                  {proposal.cover_page.company_name}
+                </h1>
+              )}
+
+              <div className="max-w-2xl mx-auto space-y-4">
+                <h2 className="text-xl font-semibold text-primary">
+                  {proposal.title || 'Untitled Proposal'}
+                </h2>
                 
-                {proposal.cover_page.company_name && (
-                  <h1 className="text-3xl font-bold text-foreground">
-                    {proposal.cover_page.company_name}
-                  </h1>
-                )}
-
-                <div className="max-w-2xl mx-auto space-y-4">
-                  <h2 className="text-xl font-semibold text-primary">
-                    {proposal.title}
-                  </h2>
-                  
-                  {proposal.description && (
-                    <p className="text-muted-foreground">
-                      {proposal.description}
-                    </p>
-                  )}
-                </div>
-
-                {proposal.cover_page.about_us && (
-                  <div className="max-w-2xl mx-auto text-left">
-                    <h3 className="text-lg font-semibold text-primary mb-3">About Us</h3>
-                    <div className="text-muted-foreground space-y-2">
-                      {proposal.cover_page.about_us.split('\n').map((line: string, index: number) => (
-                        <p key={index}>{line}</p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {proposal.cover_page.custom_text && (
-                  <div className="max-w-2xl mx-auto text-left border-t pt-6">
-                    <div className="text-foreground space-y-2">
-                      {proposal.cover_page.custom_text.split('\n').map((line: string, index: number) => (
-                        <p key={index}>{line}</p>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <p className="text-muted-foreground">
+                  {proposal.description || 'This is a preview of your proposal. Add a description in the Details tab to customize this section.'}
+                </p>
               </div>
+
+              {proposal.cover_page?.about_us && (
+                <div className="max-w-2xl mx-auto text-left">
+                  <h3 className="text-lg font-semibold text-primary mb-3">About Us</h3>
+                  <div className="text-muted-foreground space-y-2">
+                    {proposal.cover_page.about_us.split('\n').map((line: string, index: number) => (
+                      <p key={index}>{line}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {proposal.cover_page?.custom_text && (
+                <div className="max-w-2xl mx-auto text-left border-t pt-6">
+                  <div className="text-foreground space-y-2">
+                    {proposal.cover_page.custom_text.split('\n').map((line: string, index: number) => (
+                      <p key={index}>{line}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Proposal Details */}
           <div className="p-8 space-y-6">
@@ -155,7 +151,7 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
             <Separator />
 
             {/* Sections */}
-            {proposal.sections && proposal.sections.length > 0 && (
+            {proposal.sections && proposal.sections.length > 0 ? (
               <div className="space-y-8">
                 {proposal.sections
                   .sort((a: any, b: any) => a.order - b.order)
@@ -167,7 +163,7 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                       
                       <div className="prose max-w-none">
                         {section.content.split('\n').map((line: string, lineIndex: number) => (
-                          <p key={lineIndex} className="mb-2">{line}</p>
+                          <p key={lineIndex} className="mb-2">{line || '\u00A0'}</p>
                         ))}
                       </div>
 
@@ -199,10 +195,19 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                     </div>
                   ))}
               </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground bg-muted/5 rounded-lg">
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-lg font-medium mb-2">No sections added yet</h3>
+                  <p className="text-sm">
+                    Add sections like Introduction, Deliverables, Timeline, and Terms using the "Sections" tab to build your proposal content.
+                  </p>
+                </div>
+              </div>
             )}
 
             {/* Pricing Table */}
-            {proposal.pricing_table && proposal.pricing_table.items && proposal.pricing_table.items.length > 0 && (
+            {proposal.pricing_table && proposal.pricing_table.items && proposal.pricing_table.items.length > 0 ? (
               <div>
                 <Separator className="mb-6" />
                 <h3 className="text-xl font-semibold text-primary mb-4">Investment Breakdown</h3>
@@ -249,6 +254,18 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
                       </tr>
                     </tfoot>
                   </table>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Separator className="mb-6" />
+                <div className="text-center py-12 text-muted-foreground bg-muted/5 rounded-lg">
+                  <div className="max-w-md mx-auto">
+                    <h3 className="text-lg font-medium mb-2">No pricing items added yet</h3>
+                    <p className="text-sm">
+                      Add line items and pricing packages using the "Pricing" tab to show your investment breakdown.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
