@@ -8,22 +8,52 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, MoreHorizontal, Pencil, Trash2, Star, StarOff, Users } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash2, Star, StarOff, Users, Mail, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 
 const contactSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().optional(),
-  role: z.string().optional(),
+  role: z.string().min(1, 'Role is required'),
   department: z.string().optional(),
   notes: z.string().optional(),
   is_primary: z.boolean().default(false),
 });
+
+const CONTACT_ROLES = [
+  { value: 'decision_maker', label: 'Decision Maker', color: 'bg-red-100 text-red-800' },
+  { value: 'primary_contact', label: 'Primary Contact', color: 'bg-blue-100 text-blue-800' },
+  { value: 'technical_lead', label: 'Technical Lead', color: 'bg-green-100 text-green-800' },
+  { value: 'project_manager', label: 'Project Manager', color: 'bg-purple-100 text-purple-800' },
+  { value: 'finance_contact', label: 'Finance Contact', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'legal_contact', label: 'Legal Contact', color: 'bg-gray-100 text-gray-800' },
+  { value: 'procurement', label: 'Procurement', color: 'bg-indigo-100 text-indigo-800' },
+  { value: 'end_user', label: 'End User', color: 'bg-pink-100 text-pink-800' },
+  { value: 'stakeholder', label: 'Stakeholder', color: 'bg-orange-100 text-orange-800' },
+  { value: 'other', label: 'Other', color: 'bg-gray-100 text-gray-800' }
+];
+
+const DEPARTMENTS = [
+  'Executive',
+  'Sales',
+  'Marketing',
+  'IT',
+  'Finance',
+  'Operations',
+  'HR',
+  'Legal',
+  'Procurement',
+  'Engineering',
+  'Product',
+  'Customer Success',
+  'Other'
+];
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
@@ -275,10 +305,21 @@ const ContactDialog = ({ customer, open, onOpenChange }: ContactDialogProps) => 
                       name="role"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Role</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., Sales Manager" {...field} />
-                          </FormControl>
+                          <FormLabel>Role *</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {CONTACT_ROLES.map((role) => (
+                                <SelectItem key={role.value} value={role.value}>
+                                  {role.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -290,9 +331,20 @@ const ContactDialog = ({ customer, open, onOpenChange }: ContactDialogProps) => 
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Department</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., Sales" {...field} />
-                          </FormControl>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select department" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {DEPARTMENTS.map((dept) => (
+                                <SelectItem key={dept} value={dept}>
+                                  {dept}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -375,16 +427,60 @@ const ContactDialog = ({ customer, open, onOpenChange }: ContactDialogProps) => 
               <TableBody>
                 {contacts.map((contact) => (
                   <TableRow key={contact.id}>
-                    <TableCell className="font-medium">{contact.name}</TableCell>
-                    <TableCell>{contact.email}</TableCell>
-                    <TableCell>{contact.role || '-'}</TableCell>
-                    <TableCell>{contact.department || '-'}</TableCell>
-                    <TableCell>{contact.phone || '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                          <Users className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <div className="font-medium">{contact.name}</div>
+                          {contact.is_primary && (
+                            <Badge variant="default" className="text-xs">
+                              Primary
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <a href={`mailto:${contact.email}`} className="text-primary hover:underline">
+                          {contact.email}
+                        </a>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {contact.role ? (
+                        <Badge 
+                          variant="secondary" 
+                          className={CONTACT_ROLES.find(r => r.value === contact.role)?.color || 'bg-gray-100 text-gray-800'}
+                        >
+                          {CONTACT_ROLES.find(r => r.value === contact.role)?.label || contact.role}
+                        </Badge>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell>
+                      {contact.department ? (
+                        <Badge variant="outline">{contact.department}</Badge>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell>
+                      {contact.phone ? (
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <a href={`tel:${contact.phone}`} className="text-primary hover:underline">
+                            {contact.phone}
+                          </a>
+                        </div>
+                      ) : '-'}
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => togglePrimary(contact)}
+                        className="h-8 w-8 p-0"
                       >
                         {contact.is_primary ? (
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
@@ -396,7 +492,7 @@ const ContactDialog = ({ customer, open, onOpenChange }: ContactDialogProps) => 
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -408,14 +504,20 @@ const ContactDialog = ({ customer, open, onOpenChange }: ContactDialogProps) => 
                             }}
                           >
                             <Pencil className="h-4 w-4 mr-2" />
-                            Edit
+                            Edit Contact
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => togglePrimary(contact)}
+                          >
+                            <Star className="h-4 w-4 mr-2" />
+                            {contact.is_primary ? 'Remove Primary' : 'Set as Primary'}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDelete(contact.id)}
                             className="text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
+                            Delete Contact
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

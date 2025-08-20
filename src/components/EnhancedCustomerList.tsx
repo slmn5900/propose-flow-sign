@@ -14,6 +14,7 @@ import { Plus, MoreHorizontal, Pencil, Trash2, Users, Loader2, Search, Filter, G
 import { toast } from 'sonner';
 import EnhancedCustomerForm from './forms/EnhancedCustomerForm';
 import ContactDialog from './ContactDialog';
+import QuickCustomerAdd from './QuickCustomerAdd';
 
 const EnhancedCustomerList = () => {
   const { user } = useAuth();
@@ -109,29 +110,40 @@ const EnhancedCustomerList = () => {
             <CardTitle>Customer Management</CardTitle>
           </div>
           {hasPermission('create_customer') && (
-            <Dialog open={showForm} onOpenChange={setShowForm}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Customer
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
-                  </DialogTitle>
-                </DialogHeader>
-                <EnhancedCustomerForm
-                  customer={editingCustomer}
-                  onSuccess={handleSuccess}
-                  onCancel={() => {
-                    setShowForm(false);
-                    setEditingCustomer(null);
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+              <QuickCustomerAdd 
+                onSuccess={fetchCustomers}
+                trigger={
+                  <Button variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Quick Add
+                  </Button>
+                }
+              />
+              <Dialog open={showForm} onOpenChange={setShowForm}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Customer
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <EnhancedCustomerForm
+                    customer={editingCustomer}
+                    onSuccess={handleSuccess}
+                    onCancel={() => {
+                      setShowForm(false);
+                      setEditingCustomer(null);
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
           )}
         </div>
       </CardHeader>
