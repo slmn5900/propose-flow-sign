@@ -14,6 +14,198 @@ export type Database = {
   }
   public: {
     Tables: {
+      engagement_tracking: {
+        Row: {
+          client_ip: string | null
+          created_at: string
+          document_id: string
+          document_type: string
+          id: string
+          last_viewed_at: string | null
+          page_views: number | null
+          sections_viewed: Json | null
+          session_id: string
+          time_spent: number | null
+          user_agent: string | null
+        }
+        Insert: {
+          client_ip?: string | null
+          created_at?: string
+          document_id: string
+          document_type: string
+          id?: string
+          last_viewed_at?: string | null
+          page_views?: number | null
+          sections_viewed?: Json | null
+          session_id: string
+          time_spent?: number | null
+          user_agent?: string | null
+        }
+        Update: {
+          client_ip?: string | null
+          created_at?: string
+          document_id?: string
+          document_type?: string
+          id?: string
+          last_viewed_at?: string | null
+          page_views?: number | null
+          sections_viewed?: Json | null
+          session_id?: string
+          time_spent?: number | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      estimates: {
+        Row: {
+          client_company: string | null
+          client_email: string
+          client_name: string
+          created_at: string
+          created_by: string
+          currency: string | null
+          description: string | null
+          id: string
+          items: Json | null
+          status: string | null
+          subtotal: number | null
+          tax_amount: number | null
+          tax_rate: number | null
+          title: string
+          total_amount: number | null
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          client_company?: string | null
+          client_email: string
+          client_name: string
+          created_at?: string
+          created_by: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          items?: Json | null
+          status?: string | null
+          subtotal?: number | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          title: string
+          total_amount?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          client_company?: string | null
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          items?: Json | null
+          status?: string | null
+          subtotal?: number | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          title?: string
+          total_amount?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          client_company: string | null
+          client_email: string
+          client_name: string
+          created_at: string
+          created_by: string
+          currency: string | null
+          description: string | null
+          due_date: string | null
+          estimate_id: string | null
+          id: string
+          invoice_number: string
+          items: Json | null
+          paid_at: string | null
+          payment_method: string | null
+          proposal_id: string | null
+          status: string | null
+          subtotal: number | null
+          tax_amount: number | null
+          tax_rate: number | null
+          title: string
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          client_company?: string | null
+          client_email: string
+          client_name: string
+          created_at?: string
+          created_by: string
+          currency?: string | null
+          description?: string | null
+          due_date?: string | null
+          estimate_id?: string | null
+          id?: string
+          invoice_number: string
+          items?: Json | null
+          paid_at?: string | null
+          payment_method?: string | null
+          proposal_id?: string | null
+          status?: string | null
+          subtotal?: number | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          title: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          client_company?: string | null
+          client_email?: string
+          client_name?: string
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          description?: string | null
+          due_date?: string | null
+          estimate_id?: string | null
+          id?: string
+          invoice_number?: string
+          items?: Json | null
+          paid_at?: string | null
+          payment_method?: string | null
+          proposal_id?: string | null
+          status?: string | null
+          subtotal?: number | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          title?: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media: {
         Row: {
           alt_text: string | null
@@ -173,6 +365,63 @@ export type Database = {
         }
         Relationships: []
       }
+      proposals: {
+        Row: {
+          client_company: string | null
+          client_email: string
+          client_name: string
+          content: Json | null
+          created_at: string
+          created_by: string
+          currency: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          signature_data: Json | null
+          signed_at: string | null
+          status: string | null
+          title: string
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          client_company?: string | null
+          client_email: string
+          client_name: string
+          content?: Json | null
+          created_at?: string
+          created_by: string
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          signature_data?: Json | null
+          signed_at?: string | null
+          status?: string | null
+          title: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          client_company?: string | null
+          client_email?: string
+          client_name?: string
+          content?: Json | null
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          signature_data?: Json | null
+          signed_at?: string | null
+          status?: string | null
+          title?: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           created_at: string
@@ -310,7 +559,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
