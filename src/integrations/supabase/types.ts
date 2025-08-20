@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      contacts: {
+        Row: {
+          created_at: string
+          created_by: string
+          customer_id: string
+          email: string
+          id: string
+          is_primary: boolean | null
+          name: string
+          phone: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          customer_id: string
+          email: string
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          customer_id?: string
+          email?: string
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          address: string | null
+          company: string | null
+          created_at: string
+          created_by: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          company?: string | null
+          created_at?: string
+          created_by: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       engagement_tracking: {
         Row: {
           client_ip: string | null
@@ -64,6 +147,7 @@ export type Database = {
           created_at: string
           created_by: string
           currency: string | null
+          customer_id: string | null
           description: string | null
           id: string
           items: Json | null
@@ -83,6 +167,7 @@ export type Database = {
           created_at?: string
           created_by: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           id?: string
           items?: Json | null
@@ -102,6 +187,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           id?: string
           items?: Json | null
@@ -114,7 +200,15 @@ export type Database = {
           updated_at?: string
           valid_until?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "estimates_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -124,6 +218,7 @@ export type Database = {
           created_at: string
           created_by: string
           currency: string | null
+          customer_id: string | null
           description: string | null
           due_date: string | null
           estimate_id: string | null
@@ -148,6 +243,7 @@ export type Database = {
           created_at?: string
           created_by: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           due_date?: string | null
           estimate_id?: string | null
@@ -172,6 +268,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           due_date?: string | null
           estimate_id?: string | null
@@ -190,6 +287,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invoices_estimate_id_fkey"
             columns: ["estimate_id"]
@@ -374,6 +478,7 @@ export type Database = {
           created_at: string
           created_by: string
           currency: string | null
+          customer_id: string | null
           description: string | null
           expires_at: string | null
           id: string
@@ -392,6 +497,7 @@ export type Database = {
           created_at?: string
           created_by: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           expires_at?: string | null
           id?: string
@@ -410,6 +516,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           expires_at?: string | null
           id?: string
@@ -420,7 +527,15 @@ export type Database = {
           total_amount?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "proposals_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sites: {
         Row: {

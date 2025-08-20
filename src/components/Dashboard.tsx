@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ProposalCard } from './ProposalCard';
 import { EngagementChart } from './EngagementChart';
 import DocumentList from './DocumentList';
+import CustomerList from './CustomerList';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -103,8 +104,9 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="customers">Customers</TabsTrigger>
               <TabsTrigger value="proposals">Proposals</TabsTrigger>
               <TabsTrigger value="estimates">Estimates</TabsTrigger>
               <TabsTrigger value="invoices">Invoices</TabsTrigger>
@@ -176,6 +178,10 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="customers">
+              <CustomerList />
             </TabsContent>
 
             <TabsContent value="proposals">

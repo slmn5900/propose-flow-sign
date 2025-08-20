@@ -10,6 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from '@/hooks/use-toast';
 import { MoreHorizontal, Plus, Eye, Edit, Trash2, FileText, Calculator, Receipt } from 'lucide-react';
 import ProposalForm from './forms/ProposalForm';
+import EstimateForm from './forms/EstimateForm';
+import InvoiceForm from './forms/InvoiceForm';
 
 interface DocumentListProps {
   type: 'proposals' | 'estimates' | 'invoices';
@@ -146,6 +148,26 @@ const DocumentList = ({ type }: DocumentListProps) => {
               {type === 'proposals' && (
                 <ProposalForm
                   proposal={editingDocument}
+                  onSuccess={handleFormSuccess}
+                  onCancel={() => {
+                    setShowForm(false);
+                    setEditingDocument(null);
+                  }}
+                />
+              )}
+              {type === 'estimates' && (
+                <EstimateForm
+                  estimate={editingDocument}
+                  onSuccess={handleFormSuccess}
+                  onCancel={() => {
+                    setShowForm(false);
+                    setEditingDocument(null);
+                  }}
+                />
+              )}
+              {type === 'invoices' && (
+                <InvoiceForm
+                  invoice={editingDocument}
                   onSuccess={handleFormSuccess}
                   onCancel={() => {
                     setShowForm(false);
