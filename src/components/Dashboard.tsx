@@ -1,282 +1,199 @@
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button-enhanced"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { ProposalCard } from "./ProposalCard"
-import { EngagementChart } from "./EngagementChart"
-import { 
-  FileText, 
-  TrendingUp, 
-  DollarSign, 
-  Users, 
-  Plus, 
-  Search,
-  Bell,
-  Settings,
-  Filter,
-  Download,
-  Mail
-} from "lucide-react"
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { FileText, Calculator, Receipt, TrendingUp, Users, Clock, DollarSign, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { ProposalCard } from './ProposalCard';
+import { EngagementChart } from './EngagementChart';
+import DocumentList from './DocumentList';
 
-// Mock data
-const mockProposals = [
-  {
-    id: '1',
-    title: 'Website Redesign Proposal',
-    client: 'TechCorp Inc.',
-    amount: 45000,
-    status: 'viewed' as const,
-    viewTime: 12,
-    lastActivity: '2 hours ago',
-    engagementScore: 85,
-    sectionViews: [
-      { section: 'Pricing', time: 5.2 },
-      { section: 'Timeline', time: 3.8 },
-      { section: 'Team', time: 2.1 }
-    ]
-  },
-  {
-    id: '2',
-    title: 'Mobile App Development',
-    client: 'StartupXYZ',
-    amount: 75000,
-    status: 'signed' as const,
-    viewTime: 28,
-    lastActivity: '1 day ago',
-    engagementScore: 92,
-    sectionViews: [
-      { section: 'Features', time: 8.5 },
-      { section: 'Pricing', time: 6.2 },
-      { section: 'Timeline', time: 4.8 }
-    ]
-  },
-  {
-    id: '3',
-    title: 'E-commerce Platform',
-    client: 'RetailCo',
-    amount: 125000,
-    status: 'sent' as const,
-    viewTime: 0,
-    lastActivity: '3 days ago',
-    engagementScore: 0,
-    sectionViews: []
-  },
-  {
-    id: '4',
-    title: 'Brand Identity Package',
-    client: 'BrandNew Ltd.',
-    amount: 15000,
-    status: 'paid' as const,
-    viewTime: 18,
-    lastActivity: '1 week ago',
-    engagementScore: 78,
-    sectionViews: [
-      { section: 'Deliverables', time: 4.2 },
-      { section: 'Process', time: 3.5 },
-      { section: 'Pricing', time: 2.8 }
-    ]
-  }
-]
+const Dashboard = () => {
+  const { user, signOut } = useAuth();
 
-const stats = [
-  { 
-    title: 'Active Proposals', 
-    value: '12', 
-    change: '+2', 
-    icon: FileText, 
-    color: 'text-brand-primary',
-    bgColor: 'bg-brand-primary/10'
-  },
-  { 
-    title: 'Total Revenue', 
-    value: '$450K', 
-    change: '+18%', 
-    icon: DollarSign, 
-    color: 'text-success',
-    bgColor: 'bg-success/10'
-  },
-  { 
-    title: 'Avg. Engagement', 
-    value: '76%', 
-    change: '+5%', 
-    icon: TrendingUp, 
-    color: 'text-info',
-    bgColor: 'bg-info/10'
-  },
-  { 
-    title: 'Active Clients', 
-    value: '8', 
-    change: '+1', 
-    icon: Users, 
-    color: 'text-warning',
-    bgColor: 'bg-warning/10'
-  }
-]
+  // Mock data for the overview
+  const stats = [
+    { title: 'Total Proposals', value: '12', change: 15, icon: FileText },
+    { title: 'Total Revenue', value: '$45,200', change: 23, icon: DollarSign },
+    { title: 'Avg. Engagement', value: '76%', change: 8, icon: TrendingUp },
+    { title: 'Active Clients', value: '8', change: 12, icon: Users },
+  ];
 
-export function Dashboard() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState('overview')
+  const recentActivity = [
+    { action: 'Proposal "Website Redesign" was viewed by client', time: '2 hours ago', color: 'bg-status-info' },
+    { action: 'Estimate "Mobile App" was accepted', time: '4 hours ago', color: 'bg-status-success' },
+    { action: 'Invoice INV-000001 payment received', time: '1 day ago', color: 'bg-status-success' },
+    { action: 'New proposal "E-commerce Site" created', time: '2 days ago', color: 'bg-primary' },
+  ];
 
-  const filteredProposals = mockProposals.filter(proposal =>
-    proposal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    proposal.client.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const mockProposals = [
+    {
+      id: '1',
+      title: 'Website Redesign Proposal',
+      client: 'TechCorp Inc.',
+      amount: 45000,
+      status: 'viewed' as const,
+      viewTime: 12,
+      lastActivity: '2 hours ago',
+      engagementScore: 85,
+      sectionViews: [
+        { section: 'Pricing', time: 5.2 },
+        { section: 'Timeline', time: 3.8 },
+        { section: 'Team', time: 2.1 }
+      ]
+    },
+    {
+      id: '2',
+      title: 'Mobile App Development',
+      client: 'StartupXYZ',
+      amount: 75000,
+      status: 'signed' as const,
+      viewTime: 28,
+      lastActivity: '1 day ago',
+      engagementScore: 92,
+      sectionViews: [
+        { section: 'Features', time: 8.5 },
+        { section: 'Pricing', time: 6.2 },
+        { section: 'Timeline', time: 4.8 }
+      ]
+    },
+    {
+      id: '3',
+      title: 'E-commerce Platform',
+      client: 'RetailCo',
+      amount: 125000,
+      status: 'sent' as const,
+      viewTime: 0,
+      lastActivity: '3 days ago',
+      engagementScore: 0,
+      sectionViews: []
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-dashboard-bg">
+    <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
-      <header className="bg-dashboard-card border-b border-dashboard-border px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-foreground">ProposalFlow</h1>
-            <Badge variant="secondary" className="bg-brand-primary/10 text-brand-primary">
-              Professional
-            </Badge>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
-            <Button variant="brand">
-              <Plus className="h-4 w-4 mr-2" />
-              New Proposal
-            </Button>
+      <header className="bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <FileText className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">ProposalHub</h1>
+                <p className="text-sm text-muted-foreground">Proposal & Invoice Management</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span>Welcome, {user?.email}</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-dashboard-card border-r border-dashboard-border h-screen sticky top-0">
-          <nav className="p-4 space-y-2">
-            {[
-              { id: 'overview', label: 'Overview', icon: TrendingUp },
-              { id: 'proposals', label: 'Proposals', icon: FileText },
-              { id: 'analytics', label: 'Analytics', icon: TrendingUp },
-              { id: 'clients', label: 'Clients', icon: Users },
-            ].map((item) => (
-              <Button
-                key={item.id}
-                variant={activeTab === item.id ? "brand" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveTab(item.id)}
-              >
-                <item.icon className="h-4 w-4 mr-3" />
-                {item.label}
-              </Button>
-            ))}
-          </nav>
-        </aside>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="proposals">Proposals</TabsTrigger>
+              <TabsTrigger value="estimates">Estimates</TabsTrigger>
+              <TabsTrigger value="invoices">Invoices</TabsTrigger>
+            </TabsList>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              {/* Stats Cards */}
+            <TabsContent value="overview" className="space-y-6">
+              {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, index) => (
-                  <Card key={index} className="p-6 bg-dashboard-card border border-dashboard-border">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{stat.title}</p>
-                        <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                        <p className={`text-sm ${stat.color} font-medium`}>{stat.change}</p>
-                      </div>
-                      <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                        <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                      </div>
-                    </div>
+                  <Card key={index} className="border-2 hover:border-primary/20 transition-colors">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </CardTitle>
+                      <stat.icon className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <span className="text-status-success">+{stat.change}%</span> from last month
+                      </p>
+                    </CardContent>
                   </Card>
                 ))}
               </div>
 
-              {/* Engagement Analytics */}
-              <EngagementChart />
+              {/* Charts Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Engagement Analytics</CardTitle>
+                    <CardDescription>Real-time document engagement tracking</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EngagementChart />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Activity</CardTitle>
+                    <CardDescription>Latest proposal interactions</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {recentActivity.map((activity, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                        <div className={`w-2 h-2 rounded-full ${activity.color}`} />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{activity.action}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Recent Proposals */}
-              <Card className="p-6 bg-dashboard-card border border-dashboard-border">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-foreground">Recent Proposals</h2>
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm">
-                      <Filter className="h-4 w-4 mr-2" />
-                      Filter
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                    </Button>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Proposals</CardTitle>
+                  <CardDescription>Your latest proposal submissions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {mockProposals.map((proposal) => (
+                      <ProposalCard key={proposal.id} {...proposal} />
+                    ))}
                   </div>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {mockProposals.slice(0, 4).map((proposal) => (
-                    <ProposalCard key={proposal.id} {...proposal} />
-                  ))}
-                </div>
+                </CardContent>
               </Card>
-            </div>
-          )}
+            </TabsContent>
 
-          {activeTab === 'proposals' && (
-            <div className="space-y-6">
-              {/* Search and Filters */}
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-foreground">All Proposals</h2>
-                <div className="flex space-x-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search proposals..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 w-64"
-                    />
-                  </div>
-                  <Button variant="brand">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Proposal
-                  </Button>
-                </div>
-              </div>
+            <TabsContent value="proposals">
+              <DocumentList type="proposals" />
+            </TabsContent>
 
-              {/* Proposals Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProposals.map((proposal) => (
-                  <ProposalCard key={proposal.id} {...proposal} />
-                ))}
-              </div>
-            </div>
-          )}
+            <TabsContent value="estimates">
+              <DocumentList type="estimates" />
+            </TabsContent>
 
-          {activeTab === 'analytics' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-foreground">Analytics Dashboard</h2>
-              <EngagementChart />
-            </div>
-          )}
-
-          {activeTab === 'clients' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-foreground">Client Management</h2>
-              <Card className="p-8 bg-dashboard-card border border-dashboard-border text-center">
-                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">Client Management</h3>
-                <p className="text-muted-foreground mb-4">
-                  Manage your clients and track their engagement with your proposals.
-                </p>
-                <Button variant="brand">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Invite Client
-                </Button>
-              </Card>
-            </div>
-          )}
-        </main>
+            <TabsContent value="invoices">
+              <DocumentList type="invoices" />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Dashboard;
