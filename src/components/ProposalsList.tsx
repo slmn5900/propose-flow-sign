@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -337,15 +338,12 @@ const ProposalsList = () => {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 pt-2 border-t">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePreview(proposal)}
-                      className="gap-1"
-                    >
-                      <Eye className="h-3 w-3" />
-                      Preview
-                    </Button>
+                      <Link to={`/proposal/${proposal.id}`}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-2" />
+                          View
+                        </Button>
+                      </Link>
                     
                     <Button
                       variant="outline"

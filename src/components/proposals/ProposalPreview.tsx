@@ -44,8 +44,8 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
-        <DialogHeader className="sticky top-0 bg-background border-b p-6 z-10">
+      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col">
+        <DialogHeader className="flex-shrink-0 p-6 border-b">
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle>Proposal Preview</DialogTitle>
@@ -69,7 +69,7 @@ const ProposalPreview = ({ proposal, onClose }: ProposalPreviewProps) => {
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
 
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
           {/* Cover Page - Always show with fallbacks */}
