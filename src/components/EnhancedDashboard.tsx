@@ -66,9 +66,9 @@ const EnhancedDashboard = () => {
       const overdueInvoices = invoices?.filter(inv => 
         inv.status !== 'paid' && inv.due_date && new Date(inv.due_date) < new Date()
       ).length || 0;
-      const totalRevenue = invoices?.reduce((sum, inv) => sum + parseFloat(inv.total_amount || 0), 0) || 0;
+      const totalRevenue = invoices?.reduce((sum, inv) => sum + (Number(inv.total_amount) || 0), 0) || 0;
       const paidRevenue = invoices?.filter(inv => inv.status === 'paid')
-        .reduce((sum, inv) => sum + parseFloat(inv.total_amount || 0), 0) || 0;
+        .reduce((sum, inv) => sum + (Number(inv.total_amount) || 0), 0) || 0;
 
       // Fetch recent activity
       const { data: activity } = await supabase
