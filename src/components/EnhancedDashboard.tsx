@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -197,7 +198,17 @@ const EnhancedDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Navigation */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex gap-4 mb-6">
+          <Link to="/proposals">
+            <Button className="gap-2">
+              <FileText className="h-4 w-4" />
+              Manage Proposals
+            </Button>
+          </Link>
+        </div>
+      </div>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           <Tabs defaultValue="overview" className="space-y-6">

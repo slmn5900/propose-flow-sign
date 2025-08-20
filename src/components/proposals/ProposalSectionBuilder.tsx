@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,15 +7,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { 
   Plus, Trash2, GripVertical, FileText, Target, 
-  Clock, DollarSign, FileCheck, ChevronUp, ChevronDown 
+  Clock, DollarSign, FileCheck, ChevronUp, ChevronDown,
+  Image, Video, Type, Heading1, Heading2, AlignLeft
 } from 'lucide-react';
+import MediaUploader from '../MediaUploader';
 
+interface ContentBlock {
+  id: string;
+  type: 'text' | 'heading' | 'subheading' | 'image' | 'video';
+  content: string;
+  metadata?: {
+    level?: number; // for headings
+    url?: string; // for images/videos
+    caption?: string; // for images/videos
+    alignment?: 'left' | 'center' | 'right';
+  };
+}
 interface Section {
   id: string;
   type: 'intro' | 'deliverables' | 'timeline' | 'pricing' | 'terms' | 'custom';
   title: string;
   content: string;
   order: number;
+  content_blocks?: ContentBlock[];
   items?: Array<{
     id: string;
     title: string;
@@ -64,6 +78,18 @@ const sectionTemplates = {
 };
 
 const ProposalSectionBuilder = ({ sections, onSectionsChange }: ProposalSectionBuilderProps) => {
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [showMediaUploader, setShowMediaUploader] = useState<{ sectionId: string; type: 'image' | 'video' } | null>(null);
+
+  const toggleSectionExpansion = (sectionId: string) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(sectionId)) {
+      newExpanded.delete(sectionId);
+    } else {
+      newExpanded.add(sectionId);
+    }
+    setExpandedSections(newExpanded);
+  };
   const addSection = (type: keyof typeof sectionTemplates) => {
     const template = sectionTemplates[type];
     const newSection: Section = {
@@ -72,10 +98,12 @@ const ProposalSectionBuilder = ({ sections, onSectionsChange }: ProposalSectionB
       title: template.title,
       content: template.content,
       order: sections.length,
+      content_blocks: [],
       items: type === 'deliverables' || type === 'timeline' ? [] : undefined,
     };
 
     onSectionsChange([...sections, newSection]);
+    setExpandedSections(prev => new Set([...prev, newSection.id]));
   };
 
   const updateSection = (id: string, updates: Partial<Section>) => {
@@ -138,6 +166,60 @@ const ProposalSectionBuilder = ({ sections, onSectionsChange }: ProposalSectionB
     );
 
     updateSection(sectionId, { items: updatedItems });
+  };
+
+  const addContentBlock = (sectionId: string, type: ContentBlock['type']) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    const newBlock: ContentBlock = {
+      id: `block_${Date.now()}`,
+      type,
+      content: type === 'heading' ? 'New Heading' : type === 'subheading' ? 'New Subheading' : 'Add your content here...',
+      metadata: type === 'heading' ? { level: 1 } : type === 'subheading' ? { level: 2 } : {},
+    };
+
+    updateSection(sectionId, {
+      content_blocks: [...(section.content_blocks || []), newBlock],
+    });
+  };
+
+  const updateContentBlock = (sectionId: string, blockId: string, updates: Partial<ContentBlock>) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section || !section.content_blocks) return;
+
+    const updatedBlocks = section.content_blocks.map(block =>
+      block.id === blockId ? { ...block, ...updates } : block
+    );
+
+    updateSection(sectionId, { content_blocks: updatedBlocks });
+  };
+
+  const removeContentBlock = (sectionId: string, blockId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section || !section.content_blocks) return;
+
+    const updatedBlocks = section.content_blocks.filter(block => block.id !== blockId);
+    updateSection(sectionId, { content_blocks: updatedBlocks });
+  };
+
+  const handleMediaUpload = (url: string, fileName: string) => {
+    if (!showMediaUploader) return;
+
+    const { sectionId, type } = showMediaUploader;
+    addContentBlock(sectionId, type);
+    
+    // Update the last added block with the media URL
+    const section = sections.find(s => s.id === sectionId);
+    if (section && section.content_blocks) {
+      const lastBlock = section.content_blocks[section.content_blocks.length - 1];
+      updateContentBlock(sectionId, lastBlock.id, {
+        content: fileName,
+        metadata: { ...lastBlock.metadata, url }
+      });
+    }
+    
+    setShowMediaUploader(null);
   };
 
   const removeItem = (sectionId: string, itemId: string) => {

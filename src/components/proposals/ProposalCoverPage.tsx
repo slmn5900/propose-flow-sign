@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Upload, Image } from 'lucide-react';
+import MediaUploader from '../MediaUploader';
 
 interface CoverPage {
   logo_url: string;
@@ -18,11 +19,22 @@ interface ProposalCoverPageProps {
 }
 
 const ProposalCoverPage = ({ coverPage, onCoverPageChange }: ProposalCoverPageProps) => {
+  const [showLogoUploader, setShowLogoUploader] = useState(false);
+
   const handleFieldChange = (field: keyof CoverPage, value: string) => {
     onCoverPageChange({
       ...coverPage,
       [field]: value,
     });
+  };
+
+  const handleLogoUpload = (url: string, fileName: string) => {
+    handleFieldChange('logo_url', url);
+    setShowLogoUploader(false);
+  };
+
+  const handleRemoveLogo = () => {
+    handleFieldChange('logo_url', '');
   };
 
   return (
@@ -38,32 +50,64 @@ const ProposalCoverPage = ({ coverPage, onCoverPageChange }: ProposalCoverPagePr
           {/* Company Logo */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Company Logo</h3>
-            <div className="flex items-center gap-4">
-              <div className="w-32 h-20 border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
-                {coverPage.logo_url ? (
-                  <img 
-                    src={coverPage.logo_url} 
-                    alt="Company Logo" 
-                    className="max-w-full max-h-full object-contain"
+            <div className="space-y-4">
+              {/* Logo Preview */}
+              <div className="flex items-center gap-4">
+                <div className="w-32 h-20 border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center bg-muted/5">
+                  {coverPage.logo_url ? (
+                    <img 
+                      src={coverPage.logo_url} 
+                      alt="Company Logo" 
+                      className="max-w-full max-h-full object-contain rounded"
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <Image className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">No logo</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Input
+                    placeholder="Logo URL (optional)"
+                    value={coverPage.logo_url}
+                    onChange={(e) => handleFieldChange('logo_url', e.target.value)}
                   />
-                ) : (
-                  <div className="text-center">
-                    <Image className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
-                    <p className="text-xs text-muted-foreground">Logo</p>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowLogoUploader(!showLogoUploader)}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Logo
+                    </Button>
+                    {coverPage.logo_url && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleRemoveLogo}
+                      >
+                        Remove
+                      </Button>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-              <div className="flex-1">
-                <Input
-                  placeholder="Logo URL"
-                  value={coverPage.logo_url}
-                  onChange={(e) => handleFieldChange('logo_url', e.target.value)}
-                />
-                <Button variant="outline" size="sm" className="mt-2">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Logo
-                </Button>
-              </div>
+
+              {/* Logo Uploader */}
+              {showLogoUploader && (
+                <div className="border rounded-lg p-4 bg-muted/5">
+                  <MediaUploader
+                    bucketName="proposal-logos"
+                    acceptedTypes="image/*"
+                    maxSize={5}
+                    onUploadSuccess={handleLogoUpload}
+                    multiple={false}
+                    showPreview={false}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
