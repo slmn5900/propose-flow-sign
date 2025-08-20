@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ProposalCard } from './ProposalCard';
 import { EngagementChart } from './EngagementChart';
 import DocumentList from './DocumentList';
-import CustomerList from './CustomerList';
+import EnhancedCustomerList from './EnhancedCustomerList';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -181,7 +181,7 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="customers">
-              <CustomerList />
+              <EnhancedCustomerList />
             </TabsContent>
 
             <TabsContent value="proposals">

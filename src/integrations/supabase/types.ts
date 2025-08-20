@@ -14,15 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          entity_id: string
+          entity_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string
           created_by: string
           customer_id: string
+          department: string | null
           email: string
           id: string
           is_primary: boolean | null
           name: string
+          notes: string | null
           phone: string | null
           role: string | null
           updated_at: string
@@ -31,10 +69,12 @@ export type Database = {
           created_at?: string
           created_by: string
           customer_id: string
+          department?: string | null
           email: string
           id?: string
           is_primary?: boolean | null
           name: string
+          notes?: string | null
           phone?: string | null
           role?: string | null
           updated_at?: string
@@ -43,10 +83,12 @@ export type Database = {
           created_at?: string
           created_by?: string
           customer_id?: string
+          department?: string | null
           email?: string
           id?: string
           is_primary?: boolean | null
           name?: string
+          notes?: string | null
           phone?: string | null
           role?: string | null
           updated_at?: string
@@ -69,9 +111,14 @@ export type Database = {
           created_by: string
           email: string
           id: string
+          industry: string | null
           name: string
+          notes: string | null
           phone: string | null
+          status: string | null
+          tags: string[] | null
           updated_at: string
+          website: string | null
         }
         Insert: {
           address?: string | null
@@ -80,9 +127,14 @@ export type Database = {
           created_by: string
           email: string
           id?: string
+          industry?: string | null
           name: string
+          notes?: string | null
           phone?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
           address?: string | null
@@ -91,9 +143,14 @@ export type Database = {
           created_by?: string
           email?: string
           id?: string
+          industry?: string | null
           name?: string
+          notes?: string | null
           phone?: string | null
+          status?: string | null
+          tags?: string[] | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -210,6 +267,50 @@ export type Database = {
           },
         ]
       }
+      invoice_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          id: string
+          invoice_id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string
+          reference_number: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by: string
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          payment_date: string
+          payment_method: string
+          reference_number?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          invoice_id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          reference_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           client_company: string | null
@@ -220,6 +321,8 @@ export type Database = {
           currency: string | null
           customer_id: string | null
           description: string | null
+          discount_amount: number | null
+          discount_percentage: number | null
           due_date: string | null
           estimate_id: string | null
           id: string
@@ -227,7 +330,10 @@ export type Database = {
           items: Json | null
           paid_at: string | null
           payment_method: string | null
+          payment_notes: string | null
+          payment_terms: string | null
           proposal_id: string | null
+          reminder_sent_at: string | null
           status: string | null
           subtotal: number | null
           tax_amount: number | null
@@ -245,6 +351,8 @@ export type Database = {
           currency?: string | null
           customer_id?: string | null
           description?: string | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
           due_date?: string | null
           estimate_id?: string | null
           id?: string
@@ -252,7 +360,10 @@ export type Database = {
           items?: Json | null
           paid_at?: string | null
           payment_method?: string | null
+          payment_notes?: string | null
+          payment_terms?: string | null
           proposal_id?: string | null
+          reminder_sent_at?: string | null
           status?: string | null
           subtotal?: number | null
           tax_amount?: number | null
@@ -270,6 +381,8 @@ export type Database = {
           currency?: string | null
           customer_id?: string | null
           description?: string | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
           due_date?: string | null
           estimate_id?: string | null
           id?: string
@@ -277,7 +390,10 @@ export type Database = {
           items?: Json | null
           paid_at?: string | null
           payment_method?: string | null
+          payment_notes?: string | null
+          payment_terms?: string | null
           proposal_id?: string | null
+          reminder_sent_at?: string | null
           status?: string | null
           subtotal?: number | null
           tax_amount?: number | null
@@ -471,10 +587,12 @@ export type Database = {
       }
       proposals: {
         Row: {
+          attachments: Json | null
           client_company: string | null
           client_email: string
           client_name: string
           content: Json | null
+          cover_page: Json | null
           created_at: string
           created_by: string
           currency: string | null
@@ -482,18 +600,25 @@ export type Database = {
           description: string | null
           expires_at: string | null
           id: string
+          parent_id: string | null
+          sections: Json | null
           signature_data: Json | null
+          signature_required: boolean | null
           signed_at: string | null
           status: string | null
           title: string
           total_amount: number | null
+          tracking_data: Json | null
           updated_at: string
+          version: number | null
         }
         Insert: {
+          attachments?: Json | null
           client_company?: string | null
           client_email: string
           client_name: string
           content?: Json | null
+          cover_page?: Json | null
           created_at?: string
           created_by: string
           currency?: string | null
@@ -501,18 +626,25 @@ export type Database = {
           description?: string | null
           expires_at?: string | null
           id?: string
+          parent_id?: string | null
+          sections?: Json | null
           signature_data?: Json | null
+          signature_required?: boolean | null
           signed_at?: string | null
           status?: string | null
           title: string
           total_amount?: number | null
+          tracking_data?: Json | null
           updated_at?: string
+          version?: number | null
         }
         Update: {
+          attachments?: Json | null
           client_company?: string | null
           client_email?: string
           client_name?: string
           content?: Json | null
+          cover_page?: Json | null
           created_at?: string
           created_by?: string
           currency?: string | null
@@ -520,12 +652,17 @@ export type Database = {
           description?: string | null
           expires_at?: string | null
           id?: string
+          parent_id?: string | null
+          sections?: Json | null
           signature_data?: Json | null
+          signature_required?: boolean | null
           signed_at?: string | null
           status?: string | null
           title?: string
           total_amount?: number | null
+          tracking_data?: Json | null
           updated_at?: string
+          version?: number | null
         }
         Relationships: [
           {
@@ -533,6 +670,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
             referencedColumns: ["id"]
           },
         ]
@@ -666,6 +810,33 @@ export type Database = {
           status?: string | null
           stripe_customer_id?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          permissions: Json | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permissions?: Json | null
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permissions?: Json | null
+          role?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
