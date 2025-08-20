@@ -12,7 +12,7 @@ interface ProposalCardProps {
   viewTime: number
   lastActivity: string
   engagementScore: number
-  sectionViews: { section: string; time: number }[]
+  sectionViews?: { section: string; time: number }[]
 }
 
 const statusConfig = {
@@ -78,14 +78,14 @@ export function ProposalCard({
       </div>
 
       {/* Section Views Preview */}
-      {sectionViews.length > 0 && (
+      {sectionViews && sectionViews.length > 0 && (
         <div className="mb-4">
           <h4 className="text-sm font-medium text-foreground mb-2 flex items-center">
             <TrendingUp className="h-4 w-4 mr-1" />
             Top Sections
           </h4>
           <div className="space-y-1">
-            {sectionViews.slice(0, 2).map((section, index) => (
+            {sectionViews?.slice(0, 2).map((section, index) => (
               <div key={index} className="flex justify-between text-xs">
                 <span className="text-muted-foreground">{section.section}</span>
                 <span className="text-info font-medium">{section.time}min</span>
