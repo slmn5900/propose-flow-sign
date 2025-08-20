@@ -34,7 +34,7 @@ export function ProposalCard({
   engagementScore,
   sectionViews 
 }: ProposalCardProps) {
-  const config = statusConfig[status]
+  const config = statusConfig[status] || { color: 'bg-muted text-foreground', label: status }
   const formattedAmount = new Intl.NumberFormat('en-US', { 
     style: 'currency', 
     currency: 'USD' 
