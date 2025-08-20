@@ -52,6 +52,36 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Professional SaaS Theme Colors
+				brand: {
+					primary: 'hsl(var(--brand-primary))',
+					'primary-hover': 'hsl(var(--brand-primary-hover))',
+					'primary-foreground': 'hsl(var(--brand-primary-foreground))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					foreground: 'hsl(var(--info-foreground))'
+				},
+				dashboard: {
+					bg: 'hsl(var(--dashboard-bg))',
+					card: 'hsl(var(--dashboard-card))',
+					border: 'hsl(var(--dashboard-border))'
+				},
+				status: {
+					draft: 'hsl(var(--status-draft))',
+					sent: 'hsl(var(--status-sent))',
+					viewed: 'hsl(var(--status-viewed))',
+					signed: 'hsl(var(--status-signed))',
+					paid: 'hsl(var(--status-paid))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
