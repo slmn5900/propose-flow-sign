@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button-enhanced"
 import { Badge } from "@/components/ui/badge"
 import { Eye, Clock, FileText, DollarSign, TrendingUp, Users } from "lucide-react"
-import { useNavigate } from "react-router-dom"
 
 interface ProposalCardProps {
   id: string
@@ -35,20 +34,11 @@ export function ProposalCard({
   engagementScore,
   sectionViews 
 }: ProposalCardProps) {
-  const navigate = useNavigate()
   const config = statusConfig[status] || { color: 'bg-muted text-foreground', label: status }
   const formattedAmount = new Intl.NumberFormat('en-US', { 
     style: 'currency', 
     currency: 'USD' 
   }).format(amount)
-
-  const handleView = () => {
-    navigate(`/proposal/${id}`)
-  }
-
-  const handleEdit = () => {
-    navigate('/proposals')
-  }
 
   return (
     <Card className="p-6 bg-dashboard-card border border-dashboard-border hover:shadow-lg transition-all duration-300 hover:border-brand-primary/20">
@@ -110,11 +100,11 @@ export function ProposalCard({
           Last activity: {lastActivity}
         </p>
         <div className="flex space-x-2">
-          <Button variant="ghost" size="sm" onClick={handleView}>
+          <Button variant="ghost" size="sm">
             <Eye className="h-4 w-4 mr-1" />
             View
           </Button>
-          <Button variant="brand" size="sm" onClick={handleEdit}>
+          <Button variant="brand" size="sm">
             <FileText className="h-4 w-4 mr-1" />
             Edit
           </Button>
